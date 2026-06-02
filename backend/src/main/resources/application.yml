@@ -1,0 +1,57 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/bookstore?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+    username: root
+    password: 123456
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+mybatis-plus:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.bookstore.entity
+  global-config:
+    db-config:
+      id-type: auto
+      logic-delete-field: deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
+  group-configs:
+    - group: user
+      display-name: 用户端接口
+      paths-to-match: /api/user/**
+    - group: shop
+      display-name: 商家端接口
+      paths-to-match: /api/shop/**
+    - group: admin
+      display-name: 管理员端接口
+      paths-to-match: /api/admin/**
+    - group: public
+      display-name: 公共接口
+      paths-to-match: /api/public/**
+
+jwt:
+  secret: bookstore-secret-key-must-be-at-least-256-bits-long-for-hs256
+  expiration: 86400000
+
+file:
+  upload:
+    path: ./uploads/
+
+logging:
+  level:
+    com.bookstore: debug
