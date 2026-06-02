@@ -34,9 +34,8 @@
       <el-form-item label="封面图片">
         <el-upload
           class="cover-uploader"
-          action="/api/upload"
+          :http-request="customCoverUpload"
           :show-file-list="false"
-          :on-success="handleCoverSuccess"
           :before-upload="beforeUpload"
         >
           <img v-if="form.cover" :src="form.cover" class="cover-img" />
@@ -45,23 +44,6 @@
       </el-form-item>
       <el-form-item label="简介">
         <el-input v-model="form.description" type="textarea" :rows="3" />
-      </el-form-item>
-      <el-form-item label="详情描述">
-        <div class="detail-editor">
-          <textarea v-model="form.detail" rows="10" placeholder="请输入图书详情描述（支持换行）" style="width: 100%; padding: 10px; border: 1px solid #dcdfe6; border-radius: 4px; font-size: 14px; resize: vertical;" />
-        </div>
-      </el-form-item>
-      <el-form-item label="详情图片">
-        <el-upload
-          action="/api/upload"
-          list-type="picture-card"
-          :file-list="detailImages"
-          :on-success="handleDetailImageSuccess"
-          :on-remove="handleDetailImageRemove"
-          :before-upload="beforeUpload"
-        >
-          <el-icon><Plus /></el-icon>
-        </el-upload>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="handleSubmit" :loading="loading">
@@ -87,7 +69,10 @@ const isEdit = computed(() => !!route.params.id)
 const formRef = ref()
 const loading = ref(false)
 const categories = ref([])
-const detailImages = ref([])
+
+const uploadHeaders = computed(() => ({
+  Authorization: `Bearer ${localStorage.getItem('shopToken') || ''}`
+}))
 
 const form = ref({
   title: '',
@@ -100,8 +85,7 @@ const form = ref({
   publisher: '',
   publishDate: '',
   cover: '',
-  description: '',
-  detail: ''
+  description: ''
 })
 
 const rules = {
@@ -118,25 +102,22 @@ const beforeUpload = (file) => {
   return true
 }
 
-const handleCoverSuccess = (res) => {
-  if (res.code === 200) {
-    form.value.cover = res.data
-    ElMessage.success('封面上传成功')
+const customCoverUpload = async (options) => {
+  const formData = new FormData()
+  formData.append('file', options.file)
+  try {
+    const res = await request.post('/api/upload', formData)
+    if (res.data.code === 200) {
+      form.value.cover = res.data.data
+      ElMessage.success('封面上传成功')
+    } else {
+      ElMessage.error(res.data.message || '上传失败')
+    }
+  } catch (e) {
+    ElMessage.error('封面上传失败: ' + (e.message || '网络错误'))
   }
 }
 
-const handleDetailImageSuccess = (res) => {
-  if (res.code === 200) {
-    detailImages.value.push({ url: res.data })
-  }
-}
-
-const handleDetailImageRemove = (file) => {
-  const index = detailImages.value.findIndex(img => img.url === file.url)
-  if (index > -1) {
-    detailImages.value.splice(index, 1)
-  }
-}
 
 onMounted(async () => {
   // 获取分类
@@ -145,14 +126,22 @@ onMounted(async () => {
 
   // 编辑时加载图书信息
   if (isEdit.value) {
-    const bookRes = await request.get(`/api/user/books/${route.params.id}`)
+    const bookRes = await request.get(`/api/shop/books/${route.params.id}`)
     if (bookRes.data.code === 200) {
-      form.value = bookRes.data.data
-    }
-    // 加载详情图片
-    const imgRes = await request.get(`/api/user/books/${route.params.id}/images`)
-    if (imgRes.data.code === 200) {
-      detailImages.value = imgRes.data.data.map(img => ({ url: img.imageUrl, id: img.id }))
+      const book = bookRes.data.data
+      form.value = {
+        title: book.title || '',
+        author: book.author || '',
+        isbn: book.isbn || '',
+        categoryId: book.categoryId || null,
+        price: book.price || 0,
+        originalPrice: book.originalPrice || 0,
+        stock: book.stock || 0,
+        publisher: book.publisher || '',
+        publishDate: book.publishDate || '',
+        cover: book.cover || '',
+        description: book.description || ''
+      }
     }
   }
 })
@@ -161,12 +150,7 @@ const handleSubmit = async () => {
   await formRef.value.validate()
   loading.value = true
   try {
-    // 构建提交数据
     const submitData = { ...form.value }
-    // 保存详情图片URL到detail字段（JSON数组）
-    if (detailImages.value.length > 0) {
-      submitData.detailImages = detailImages.value.map(img => img.url)
-    }
 
     if (isEdit.value) {
       await request.put(`/api/shop/books/${route.params.id}`, submitData)

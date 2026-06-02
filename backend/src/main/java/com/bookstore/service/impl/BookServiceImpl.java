@@ -194,8 +194,12 @@ public class BookServiceImpl implements BookService {
         book.setOriginalPrice(dto.getOriginalPrice());
         book.setStock(dto.getStock());
         book.setPublisher(dto.getPublisher());
-        if (dto.getPublishDate() != null) {
-            book.setPublishDate(LocalDate.parse(dto.getPublishDate()));
+        if (dto.getPublishDate() != null && !dto.getPublishDate().isEmpty()) {
+            try {
+                book.setPublishDate(LocalDate.parse(dto.getPublishDate()));
+            } catch (Exception e) {
+                log.warn("日期格式解析失败: {}", dto.getPublishDate());
+            }
         }
         book.setDescription(dto.getDescription());
         book.setDetail(dto.getDetail());

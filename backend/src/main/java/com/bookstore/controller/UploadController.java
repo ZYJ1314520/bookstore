@@ -40,7 +40,7 @@ public class UploadController {
         String fileName = UUID.randomUUID().toString().replace("-", "") + suffix;
 
         // 确保上传目录存在
-        File dir = new File(uploadPath);
+        File dir = new File(uploadPath).getAbsoluteFile();
         if (!dir.exists()) {
             dir.mkdirs();
         }

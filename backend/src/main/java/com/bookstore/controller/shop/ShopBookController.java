@@ -28,6 +28,19 @@ public class ShopBookController {
     @Autowired
     private ShopService shopService;
 
+    @Operation(summary = "图书详情")
+    @GetMapping("/{id}")
+    public Result<Book> getBookDetail(HttpServletRequest request,
+                                      @PathVariable Long id) {
+        Long userId = (Long) request.getAttribute("userId");
+        Shop shop = shopService.getShopInfo(userId);
+        Book book = bookService.getBookDetail(id);
+        if (!book.getShopId().equals(shop.getId())) {
+            return Result.error("无权查看该图书");
+        }
+        return Result.success(book);
+    }
+
     @Operation(summary = "图书列表")
     @GetMapping
     public Result<PageResult<Book>> getBookList(

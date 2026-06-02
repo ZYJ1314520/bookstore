@@ -50,7 +50,8 @@ public class BookController {
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") Integer size,
             @RequestParam(defaultValue = "sales") String sort) {
-        return Result.success(bookService.getBookList(keyword, categoryId, priceMin, priceMax, page, size, sort));
+        return Result.success(bookService
+                .getBookList(keyword, categoryId, priceMin, priceMax, page, size, sort));
     }
 
     @Operation(summary = "图书详情")

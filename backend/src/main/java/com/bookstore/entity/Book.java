@@ -1,6 +1,7 @@
 package com.bookstore.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -39,6 +40,7 @@ public class Book {
 
     private String publisher;
 
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate publishDate;
 
     private String description;
@@ -47,9 +49,11 @@ public class Book {
 
     private Integer status;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime updateTime;
 

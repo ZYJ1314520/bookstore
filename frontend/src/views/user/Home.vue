@@ -291,7 +291,8 @@ onMounted(async () => {
 
 .book-card:hover {
   border-color: var(--app-border-strong);
-  transform: translateY(-3px);
+  transform: translateY(-8px);
+  box-shadow: var(--app-shadow);
 }
 
 .book-cover {
