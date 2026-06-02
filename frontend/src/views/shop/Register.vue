@@ -1,7 +1,8 @@
 <template>
   <div class="login-container">
     <div class="login-box">
-      <h2>商家注册</h2>
+      <p class="auth-kicker">Open a shop</p>
+      <h2>创建商家账号</h2>
       <el-form :model="form" :rules="rules" ref="formRef">
         <el-form-item prop="username">
           <el-input v-model="form.username" placeholder="请输入用户名" prefix-icon="User" />
@@ -71,31 +72,48 @@ const handleRegister = async () => {
 
 <style scoped>
 .login-container {
-  height: 100vh;
+  min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  background:
+    linear-gradient(90deg, rgba(17,17,17,0.04) 1px, transparent 1px),
+    linear-gradient(0deg, rgba(17,17,17,0.04) 1px, transparent 1px),
+    var(--app-bg);
+  background-size: 44px 44px;
+  padding: 24px;
 }
 .login-box {
-  width: 400px;
-  padding: 40px;
-  background: white;
-  border-radius: 10px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  width: min(460px, 100%);
+  padding: 38px;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius);
+  box-shadow: var(--app-shadow);
+}
+.auth-kicker {
+  color: var(--app-text-muted);
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  text-transform: uppercase;
 }
 .login-box h2 {
-  text-align: center;
-  margin-bottom: 30px;
-  color: #333;
+  margin-bottom: 28px;
+  color: var(--app-text);
+  font-size: 30px;
+  font-weight: 640;
 }
 .links {
   text-align: center;
-  margin-top: 20px;
+  margin-top: 18px;
 }
 .links a {
-  color: #f5576c;
+  color: var(--app-text-muted);
   text-decoration: none;
   font-size: 14px;
+}
+.links a:hover {
+  color: var(--app-text);
 }
 </style>

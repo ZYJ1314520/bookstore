@@ -2,13 +2,13 @@
   <div class="admin-layout">
     <!-- 侧边栏 -->
     <aside class="sidebar">
-      <div class="logo">📚 管理后台</div>
+      <div class="logo"><span class="logo-mark">B</span> 管理后台</div>
       <el-menu
         :default-active="$route.path"
         router
-        background-color="#001529"
-        text-color="#fff"
-        active-text-color="#409EFF"
+        background-color="transparent"
+        text-color="#6f6f67"
+        active-text-color="#111111"
       >
         <el-menu-item index="/admin">
           <el-icon><DataBoard /></el-icon>
@@ -76,40 +76,67 @@ const handleLogout = () => {
 .admin-layout {
   display: flex;
   min-height: 100vh;
+  background: var(--app-bg);
 }
 .sidebar {
-  width: 200px;
-  background: #001529;
+  width: 236px;
+  background: var(--app-surface);
+  border-right: 1px solid var(--app-border);
+  padding: 18px 12px;
 }
 .logo {
-  height: 60px;
-  line-height: 60px;
-  text-align: center;
-  color: white;
-  font-size: 18px;
-  font-weight: bold;
+  height: 54px;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--app-text);
+  font-size: 17px;
+  font-weight: 700;
+}
+.logo-mark {
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--app-text);
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
 }
 .el-menu {
   border-right: none;
+  background: transparent;
+}
+:deep(.el-menu-item) {
+  border-radius: var(--app-radius);
+  height: 44px;
+  margin: 4px 0;
+}
+:deep(.el-menu-item.is-active) {
+  background: var(--app-surface-muted);
+  font-weight: 700;
 }
 .main-area {
   flex: 1;
   display: flex;
   flex-direction: column;
+  min-width: 0;
 }
 .header {
-  height: 60px;
-  background: white;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  min-height: 68px;
+  background: rgba(247, 247, 244, 0.9);
+  border-bottom: 1px solid var(--app-border);
+  backdrop-filter: blur(18px);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 20px;
+  padding: 0 28px;
 }
 .title {
   font-size: 18px;
-  font-weight: bold;
-  color: #333;
+  font-weight: 700;
+  color: var(--app-text);
 }
 .header-right {
   display: flex;
@@ -120,11 +147,23 @@ const handleLogout = () => {
   display: flex;
   align-items: center;
   gap: 5px;
-  color: #666;
+  color: var(--app-text-muted);
 }
 .content {
   flex: 1;
-  padding: 20px;
-  background: #f5f5f5;
+  padding: 28px;
+  background: var(--app-bg);
+}
+
+@media (max-width: 820px) {
+  .admin-layout {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid var(--app-border);
+  }
 }
 </style>

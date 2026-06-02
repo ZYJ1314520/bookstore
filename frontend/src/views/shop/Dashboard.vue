@@ -1,5 +1,6 @@
 <template>
   <div class="dashboard">
+    <p class="eyebrow">Shop overview</p>
     <h2>商家工作台</h2>
 
     <!-- 统计卡片 -->
@@ -69,7 +70,9 @@ const initChart = (data) => {
         type: 'line',
         data: data.map(item => item.sales),
         smooth: true,
-        areaStyle: {}
+        lineStyle: { color: '#111111', width: 3 },
+        itemStyle: { color: '#111111' },
+        areaStyle: { color: 'rgba(17, 17, 17, 0.08)' }
       }
     ]
   }
@@ -79,12 +82,23 @@ const initChart = (data) => {
 
 <style scoped>
 .dashboard {
-  background: white;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
   padding: 30px;
-  border-radius: 8px;
+  border-radius: var(--app-radius);
+}
+.eyebrow {
+  color: var(--app-text-muted);
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  text-transform: uppercase;
 }
 h2 {
-  margin-bottom: 20px;
+  margin-bottom: 24px;
+  color: var(--app-text);
+  font-size: 32px;
+  font-weight: 640;
 }
 .stat-cards {
   display: grid;
@@ -93,25 +107,41 @@ h2 {
   margin-bottom: 30px;
 }
 .stat-card {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  padding: 30px;
-  border-radius: 10px;
-  text-align: center;
+  background: var(--app-bg);
+  border: 1px solid var(--app-border);
+  color: var(--app-text);
+  padding: 26px;
+  border-radius: var(--app-radius);
 }
 .stat-value {
   font-size: 28px;
-  font-weight: bold;
+  font-weight: 720;
   margin-bottom: 10px;
 }
 .stat-label {
   font-size: 14px;
-  opacity: 0.9;
+  color: var(--app-text-muted);
 }
 .chart-section {
   margin-top: 30px;
+  background: var(--app-bg);
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius);
+  padding: 20px;
 }
 .chart-section h3 {
   margin-bottom: 20px;
+}
+
+@media (max-width: 960px) {
+  .stat-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 620px) {
+  .stat-cards {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

@@ -1,42 +1,67 @@
 <template>
   <div class="book-detail" v-if="book">
-    <div class="book-main">
+    <section class="book-main">
       <div class="book-cover">
-        <img :src="book.cover || '/default-cover.jpg'" :alt="book.title">
+        <img v-if="book.cover" :src="book.cover" :alt="book.title">
+        <div v-else class="cover-fallback">
+          <span>{{ book.title }}</span>
+          <small>{{ book.author }}</small>
+        </div>
       </div>
       <div class="book-info">
+        <p class="eyebrow">Book detail</p>
         <h1 class="book-title">{{ book.title }}</h1>
-        <p class="book-author">作者：{{ book.author }}</p>
-        <p class="book-shop" v-if="book.shopName">
-          店铺：<router-link :to="`/shop/${book.shopId}`" class="shop-name">{{ book.shopName }}</router-link>
-        </p>
-        <p class="book-isbn">ISBN：{{ book.isbn }}</p>
+        <div class="meta-list">
+          <p>{{ book.author }}</p>
+          <p v-if="book.shopName">
+            店铺：<router-link :to="`/shop/${book.shopId}`" class="shop-name">{{ book.shopName }}</router-link>
+          </p>
+          <p>ISBN：{{ book.isbn }}</p>
+        </div>
+
         <div class="book-price-box">
-          <span class="price">¥{{ book.price }}</span>
-          <span class="original-price" v-if="book.originalPrice">¥{{ book.originalPrice }}</span>
+          <div>
+            <span class="price">¥{{ book.price }}</span>
+            <span class="original-price" v-if="book.originalPrice">¥{{ book.originalPrice }}</span>
+          </div>
           <span class="discount" v-if="book.originalPrice">{{ (book.price / book.originalPrice * 10).toFixed(1) }}折</span>
         </div>
-        <p class="book-stock">库存：{{ book.stock > 0 ? '有货' : '缺货' }}</p>
-        <p class="book-sales">销量：{{ book.sales }}</p>
+
+        <div class="stock-row">
+          <span>{{ book.stock > 0 ? '有货' : '缺货' }}</span>
+          <span>销量 {{ book.sales || 0 }}</span>
+        </div>
+
         <div class="quantity-box">
-          <span>数量：</span>
+          <span>数量</span>
           <el-input-number v-model="quantity" :min="1" :max="book.stock" />
         </div>
+
         <div class="action-buttons">
-          <el-button type="primary" @click="addToCart">加入购物车</el-button>
-          <el-button type="danger" @click="buyNow">立即购买</el-button>
+          <el-button type="primary" size="large" @click="addToCart">加入购物车</el-button>
+          <el-button type="danger" size="large" @click="buyNow">立即购买</el-button>
         </div>
       </div>
-    </div>
+    </section>
 
-    <!-- 图书详情 -->
-    <div class="book-tabs">
+    <section class="book-tabs">
       <el-tabs>
         <el-tab-pane label="商品详情">
           <div class="detail-content">
-            <p><strong>出版社：</strong>{{ book.publisher }}</p>
-            <p><strong>出版日期：</strong>{{ book.publishDate }}</p>
-            <p><strong>简介：</strong>{{ book.description }}</p>
+            <dl>
+              <div>
+                <dt>出版社</dt>
+                <dd>{{ book.publisher || '暂无' }}</dd>
+              </div>
+              <div>
+                <dt>出版日期</dt>
+                <dd>{{ book.publishDate || '暂无' }}</dd>
+              </div>
+              <div>
+                <dt>简介</dt>
+                <dd>{{ book.description || '暂无简介' }}</dd>
+              </div>
+            </dl>
             <div v-if="book.detail" class="detail-text">{{ book.detail }}</div>
             <div v-if="detailImages.length > 0" class="detail-images">
               <img v-for="img in detailImages" :key="img.id" :src="img.imageUrl" class="detail-img" />
@@ -59,7 +84,7 @@
           </div>
         </el-tab-pane>
       </el-tabs>
-    </div>
+    </section>
   </div>
 </template>
 
@@ -85,7 +110,6 @@ onMounted(async () => {
     request.get(`/api/user/books/${id}/images`)
   ])
   if (bookRes.data.code === 200) {
-    // 新接口返回 { book: {...}, shopName: "..." }
     const data = bookRes.data.data
     if (data.book) {
       book.value = { ...data.book, shopName: data.shopName }
@@ -126,122 +150,248 @@ const buyNow = () => {
 </script>
 
 <style scoped>
-.book-main {
+.book-detail {
   display: flex;
-  gap: 40px;
-  background: white;
-  padding: 30px;
-  border-radius: 8px;
-  margin-bottom: 20px;
+  flex-direction: column;
+  gap: 24px;
 }
+
+.book-main {
+  display: grid;
+  grid-template-columns: minmax(280px, 420px) minmax(0, 1fr);
+  gap: clamp(32px, 6vw, 82px);
+  align-items: start;
+  border-bottom: 1px solid var(--app-border);
+  padding: 18px 0 50px;
+}
+
 .book-cover {
-  width: 300px;
-  height: 400px;
-  flex-shrink: 0;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius);
+  overflow: hidden;
+  background: var(--app-surface-muted);
+  box-shadow: var(--app-shadow);
 }
+
 .book-cover img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border-radius: 8px;
 }
+
+.cover-fallback {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 34px;
+  color: #f6f2e9;
+  background:
+    linear-gradient(160deg, rgba(255,255,255,0.18), transparent 42%),
+    #151515;
+}
+
+.cover-fallback span {
+  font-size: clamp(30px, 5vw, 54px);
+  line-height: 1.12;
+  font-weight: 650;
+}
+
+.cover-fallback small {
+  color: rgba(255,255,255,0.72);
+}
+
 .book-info {
-  flex: 1;
+  padding-top: 6px;
 }
+
+.eyebrow {
+  color: var(--app-text-muted);
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 14px;
+  text-transform: uppercase;
+}
+
 .book-title {
-  font-size: 24px;
-  color: #333;
-  margin-bottom: 15px;
+  max-width: 760px;
+  font-size: clamp(36px, 5vw, 66px);
+  line-height: 1.06;
+  font-weight: 640;
+  color: var(--app-text);
+  margin-bottom: 24px;
 }
-.book-author, .book-isbn {
-  color: #666;
-  margin-bottom: 10px;
+
+.meta-list {
+  display: grid;
+  gap: 9px;
+  color: var(--app-text-muted);
+  margin-bottom: 28px;
 }
-.book-shop {
-  color: #666;
-  margin-bottom: 10px;
-}
+
 .shop-name {
-  color: #667eea;
-  font-weight: 500;
+  color: var(--app-text);
+  font-weight: 600;
   text-decoration: none;
-  cursor: pointer;
 }
+
 .shop-name:hover {
   text-decoration: underline;
 }
+
 .book-price-box {
-  background: #f5f5f5;
-  padding: 20px;
-  border-radius: 8px;
-  margin: 20px 0;
+  border-top: 1px solid var(--app-border);
+  border-bottom: 1px solid var(--app-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  padding: 22px 0;
+  margin-bottom: 20px;
 }
+
 .price {
-  font-size: 28px;
-  color: #e4393c;
-  font-weight: bold;
+  font-size: 34px;
+  color: var(--app-text);
+  font-weight: 720;
 }
+
 .original-price {
   font-size: 16px;
-  color: #999;
+  color: var(--app-text-muted);
   text-decoration: line-through;
   margin-left: 10px;
 }
+
+.discount {
+  border: 1px solid var(--app-border);
+  border-radius: 999px;
+  padding: 6px 12px;
+  color: var(--app-text-muted);
+  font-size: 13px;
+}
+
+.stock-row {
+  display: flex;
+  gap: 18px;
+  color: var(--app-text-muted);
+  margin-bottom: 22px;
+}
+
 .quantity-box {
-  margin: 20px 0;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 14px;
+  margin-bottom: 26px;
+  color: var(--app-text-muted);
 }
+
 .action-buttons {
   display: flex;
-  gap: 15px;
+  gap: 12px;
+  flex-wrap: wrap;
 }
+
 .book-tabs {
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius);
+  padding: 24px;
 }
+
+.detail-content {
+  padding: 12px 0;
+}
+
+.detail-content dl {
+  display: grid;
+  gap: 16px;
+}
+
+.detail-content dl > div {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 20px;
+  border-bottom: 1px solid var(--app-border);
+  padding-bottom: 16px;
+}
+
+.detail-content dt {
+  color: var(--app-text-muted);
+}
+
+.detail-content dd {
+  color: var(--app-text);
+  line-height: 1.8;
+}
+
 .reviews {
-  padding: 20px 0;
+  padding: 10px 0;
 }
+
 .review-item {
-  padding: 15px 0;
-  border-bottom: 1px solid #eee;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--app-border);
 }
+
 .review-header {
   display: flex;
   align-items: center;
   gap: 15px;
   margin-bottom: 10px;
 }
+
 .review-time {
-  color: #999;
+  color: var(--app-text-muted);
   font-size: 12px;
 }
+
 .review-content {
-  color: #333;
+  color: var(--app-text);
+  line-height: 1.7;
 }
+
 .review-reply {
-  margin-top: 10px;
-  padding: 10px;
-  background: #f5f5f5;
-  border-radius: 4px;
-  color: #666;
+  margin-top: 12px;
+  padding: 12px 14px;
+  background: var(--app-surface-muted);
+  border-radius: var(--app-radius);
+  color: var(--app-text-muted);
 }
+
 .detail-text {
   white-space: pre-wrap;
   line-height: 1.8;
-  margin: 15px 0;
+  margin: 22px 0;
 }
+
 .detail-images {
   margin-top: 20px;
 }
+
 .detail-img {
   width: 100%;
-  max-width: 800px;
+  max-width: 820px;
   display: block;
-  margin: 10px 0;
-  border-radius: 4px;
+  margin: 12px 0;
+  border-radius: var(--app-radius);
+}
+
+@media (max-width: 820px) {
+  .book-main {
+    grid-template-columns: 1fr;
+  }
+
+  .book-cover {
+    max-width: 420px;
+  }
+
+  .detail-content dl > div {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
 }
 </style>

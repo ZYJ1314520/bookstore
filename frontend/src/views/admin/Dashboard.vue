@@ -1,5 +1,6 @@
 <template>
   <div class="admin-dashboard">
+    <p class="eyebrow">Overview</p>
     <h2>数据大屏</h2>
 
     <!-- 统计卡片 -->
@@ -60,7 +61,7 @@
     <div class="charts-row">
       <!-- 热销图书排行 -->
       <div class="rank-section">
-        <h3>🔥 热销图书 TOP10</h3>
+        <h3>热销图书 TOP10</h3>
         <div class="rank-list">
           <div v-for="(book, index) in hotBooks" :key="book.id" class="rank-item">
             <span class="rank-num" :class="{ top: index < 3 }">{{ index + 1 }}</span>
@@ -71,7 +72,7 @@
       </div>
       <!-- 商家销售排行 -->
       <div class="rank-section">
-        <h3>🏆 商家销售排行 TOP10</h3>
+        <h3>商家销售排行 TOP10</h3>
         <div class="rank-list">
           <div v-for="(shop, index) in shopRank" :key="shop.shopId" class="rank-item">
             <span class="rank-num" :class="{ top: index < 3 }">{{ index + 1 }}</span>
@@ -134,14 +135,14 @@ const initTrendChart = (data) => {
         name: '销售额',
         type: 'bar',
         data: data.map(item => item.sales),
-        itemStyle: { color: '#667eea' }
+        itemStyle: { color: '#111111' }
       },
       {
         name: '订单量',
         type: 'line',
         yAxisIndex: 1,
         data: data.map(item => item.orders),
-        itemStyle: { color: '#f5576c' }
+        itemStyle: { color: '#77776f' }
       }
     ]
   }
@@ -176,12 +177,23 @@ const initPieChart = (data) => {
 
 <style scoped>
 .admin-dashboard {
-  background: white;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
   padding: 30px;
-  border-radius: 8px;
+  border-radius: var(--app-radius);
+}
+.eyebrow {
+  color: var(--app-text-muted);
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  text-transform: uppercase;
 }
 h2 {
-  margin-bottom: 20px;
+  margin-bottom: 24px;
+  color: var(--app-text);
+  font-size: 32px;
+  font-weight: 640;
 }
 .stat-cards {
   display: grid;
@@ -190,24 +202,27 @@ h2 {
   margin-bottom: 20px;
 }
 .stat-card {
-  background: #f5f5f5;
-  padding: 30px;
-  border-radius: 10px;
-  text-align: center;
+  background: var(--app-bg);
+  border: 1px solid var(--app-border);
+  padding: 26px;
+  border-radius: var(--app-radius);
 }
-.stat-card.green { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: white; }
-.stat-card.blue { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
-.stat-card.orange { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; }
-.stat-card.purple { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; }
-.stat-card.red { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: white; }
+.stat-card.green,
+.stat-card.blue,
+.stat-card.orange,
+.stat-card.purple,
+.stat-card.red {
+  background: var(--app-bg);
+  color: var(--app-text);
+}
 .stat-value {
   font-size: 32px;
-  font-weight: bold;
+  font-weight: 720;
   margin-bottom: 10px;
 }
 .stat-label {
   font-size: 14px;
-  opacity: 0.9;
+  color: var(--app-text-muted);
 }
 .charts-row {
   display: grid;
@@ -216,9 +231,10 @@ h2 {
   margin-bottom: 20px;
 }
 .chart-section, .rank-section {
-  background: #f9f9f9;
+  background: var(--app-bg);
+  border: 1px solid var(--app-border);
   padding: 20px;
-  border-radius: 8px;
+  border-radius: var(--app-radius);
 }
 .chart-section h3, .rank-section h3 {
   margin-bottom: 15px;
@@ -232,13 +248,14 @@ h2 {
   display: flex;
   align-items: center;
   padding: 10px 0;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--app-border);
 }
 .rank-num {
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  background: #eee;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -248,8 +265,9 @@ h2 {
   flex-shrink: 0;
 }
 .rank-num.top {
-  background: #ff6b6b;
-  color: white;
+  background: var(--app-text);
+  color: var(--app-surface);
+  border-color: var(--app-text);
 }
 .rank-name {
   flex: 1;
@@ -258,8 +276,22 @@ h2 {
   white-space: nowrap;
 }
 .rank-sales {
-  color: #e4393c;
-  font-weight: bold;
+  color: var(--app-text);
+  font-weight: 700;
   margin-left: 10px;
+}
+
+@media (max-width: 960px) {
+  .stat-cards,
+  .charts-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 620px) {
+  .stat-cards,
+  .charts-row {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

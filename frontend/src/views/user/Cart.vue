@@ -124,12 +124,15 @@ const goCheckout = () => {
 
 <style scoped>
 .cart-page {
-  background: white;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
   padding: 30px;
-  border-radius: 8px;
+  border-radius: var(--app-radius);
 }
 h2 {
-  margin-bottom: 20px;
+  margin-bottom: 24px;
+  font-size: 32px;
+  font-weight: 640;
 }
 .cart-item {
   display: flex;
@@ -140,16 +143,19 @@ h2 {
   width: 60px;
   height: 80px;
   object-fit: cover;
-  border-radius: 4px;
+  border-radius: var(--app-radius);
+  border: 1px solid var(--app-border);
 }
 .price {
-  color: #e4393c;
-  font-weight: bold;
+  color: var(--app-text);
+  font-weight: 700;
 }
 .cart-footer {
   margin-top: 20px;
   padding: 20px;
-  background: #f5f5f5;
+  background: var(--app-bg);
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius);
   display: flex;
   justify-content: flex-end;
   align-items: center;

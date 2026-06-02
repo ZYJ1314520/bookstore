@@ -148,12 +148,15 @@ const submitOrder = async () => {
 
 <style scoped>
 .order-confirm {
-  background: white;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
   padding: 30px;
-  border-radius: 8px;
+  border-radius: var(--app-radius);
 }
 h2 {
-  margin-bottom: 20px;
+  margin-bottom: 24px;
+  font-size: 32px;
+  font-weight: 640;
 }
 .section {
   margin-bottom: 30px;
@@ -161,7 +164,7 @@ h2 {
 .section h3 {
   margin-bottom: 15px;
   padding-bottom: 10px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--app-border);
 }
 .address-list {
   display: grid;
@@ -170,13 +173,14 @@ h2 {
 }
 .address-item {
   padding: 15px;
-  border: 2px solid #eee;
-  border-radius: 8px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius);
   cursor: pointer;
+  background: var(--app-bg);
 }
 .address-item.active {
-  border-color: #667eea;
-  background: #f5f7ff;
+  border-color: var(--app-text);
+  background: var(--app-surface);
 }
 .cart-item {
   display: flex;
@@ -187,16 +191,19 @@ h2 {
   width: 50px;
   height: 60px;
   object-fit: cover;
-  border-radius: 4px;
+  border-radius: var(--app-radius);
+  border: 1px solid var(--app-border);
 }
 .price {
-  color: #e4393c;
-  font-weight: bold;
+  color: var(--app-text);
+  font-weight: 700;
 }
 .submit-bar {
   margin-top: 20px;
   padding: 20px;
-  background: #f5f5f5;
+  background: var(--app-bg);
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius);
   display: flex;
   justify-content: flex-end;
   align-items: center;
