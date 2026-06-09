@@ -56,6 +56,8 @@ export const useShopStore = defineStore('shop', () => {
     localStorage.removeItem('shopUserInfo')
     localStorage.removeItem('shopInfo')
     localStorage.removeItem('userRole')
+    localStorage.removeItem('token')
+    localStorage.removeItem('userInfo')
   }
 
   return { token, userInfo, shopInfo, login, register, logout }

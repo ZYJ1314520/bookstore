@@ -9,7 +9,6 @@
     <el-table :data="categories" style="width: 100%">
       <el-table-column prop="id" label="ID" width="80" />
       <el-table-column prop="name" label="分类名称" />
-      <el-table-column prop="parentId" label="父级ID" width="100" />
       <el-table-column prop="sort" label="排序" width="80" />
       <el-table-column label="操作" width="150">
         <template #default="{ row }">
@@ -24,11 +23,6 @@
       <el-form :model="form" :rules="rules" ref="formRef">
         <el-form-item label="分类名称" prop="name">
           <el-input v-model="form.name" />
-        </el-form-item>
-        <el-form-item label="父级分类">
-          <el-select v-model="form.parentId" clearable placeholder="无则为顶级分类">
-            <el-option v-for="cat in categories" :key="cat.id" :label="cat.name" :value="cat.id" />
-          </el-select>
         </el-form-item>
         <el-form-item label="排序">
           <el-input-number v-model="form.sort" :min="0" />
@@ -54,7 +48,6 @@ const formRef = ref()
 
 const form = ref({
   name: '',
-  parentId: 0,
   sort: 0
 })
 
@@ -79,7 +72,7 @@ const showDialog = (cat = null) => {
     form.value = { ...cat }
   } else {
     editingId.value = null
-    form.value = { name: '', parentId: 0, sort: 0 }
+    form.value = { name: '', sort: 0 }
   }
   dialogVisible.value = true
 }
@@ -99,9 +92,13 @@ const saveCategory = async () => {
 
 const deleteCategory = async (id) => {
   await ElMessageBox.confirm('确认删除该分类？', '提示')
-  await request.delete(`/api/admin/categories/${id}`)
-  ElMessage.success('删除成功')
-  loadCategories()
+  const res = await request.delete(`/api/admin/categories/${id}`)
+  if (res.data.code === 200) {
+    ElMessage.success('删除成功')
+    loadCategories()
+  } else {
+    ElMessage.error(res.data.message || '删除失败')
+  }
 }
 </script>
 

@@ -25,7 +25,7 @@
         <el-table-column label="商品" width="400">
           <template #default="{ row }">
             <div class="cart-item">
-              <img :src="row.bookCover || '/default-cover.jpg'" class="item-cover">
+              <img :src="imgUrl(row.bookCover) || '/default-cover.jpg'" class="item-cover">
               <span>{{ row.bookName }}</span>
             </div>
           </template>
@@ -64,7 +64,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import request from '@/api'
+import request, { imgUrl } from '@/api'
 
 const router = useRouter()
 const route = useRoute()
@@ -88,9 +88,10 @@ onMounted(async () => {
   // 获取订单商品
   if (route.query.bookId) {
     // 直接购买
-    const bookRes = await request.get(`/api/user/books/${route.query.bookId}`)
+    const bookRes = await request.get(`/api/public/books/${route.query.bookId}`)
     if (bookRes.data.code === 200) {
-      const book = bookRes.data.data
+      const data = bookRes.data.data
+      const book = data.book || data
       orderItems.value = [{
         bookId: book.id,
         bookName: book.title,
@@ -136,9 +137,16 @@ const submitOrder = async () => {
       }))
     })
     if (res.data.code === 200) {
-      ElMessage.success('订单创建成功')
+      const orderList = res.data.data
+      if (orderList.length > 1) {
+        ElMessage.success(`已按商家拆分为 ${orderList.length} 个订单`)
+      } else {
+        ElMessage.success('订单创建成功')
+      }
       sessionStorage.removeItem('checkoutItems')
       router.push('/my/orders')
+    } else {
+      ElMessage.error(res.data.message || '订单创建失败')
     }
   } finally {
     loading.value = false

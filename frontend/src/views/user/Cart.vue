@@ -11,7 +11,7 @@
         <el-table-column label="商品" width="400">
           <template #default="{ row }">
             <div class="cart-item">
-              <img :src="row.bookCover || '/default-cover.jpg'" class="item-cover">
+              <img :src="imgUrl(row.bookCover) || '/default-cover.jpg'" class="item-cover">
               <span>{{ row.bookName }}</span>
             </div>
           </template>
@@ -57,7 +57,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import request from '@/api'
+import request, { imgUrl } from '@/api'
 
 const router = useRouter()
 const cartList = ref([])
@@ -69,23 +69,27 @@ onMounted(async () => {
 const loadCart = async () => {
   const res = await request.get('/api/user/cart')
   if (res.data.code === 200) {
-    cartList.value = res.data.data.map(item => ({
+    const items = res.data.data.map(item => ({
       ...item,
       selected: true,
-      price: 0,
       bookName: '',
-      bookCover: ''
+      bookCover: '',
+      price: 0
     }))
-    // 获取图书信息
-    for (let item of cartList.value) {
-      const bookRes = await request.get(`/api/user/books/${item.bookId}`)
-      if (bookRes.data.code === 200) {
-        const book = bookRes.data.data
-        item.price = book.price
-        item.bookName = book.title
-        item.bookCover = book.cover
-      }
-    }
+    // 用公共接口获取图书信息
+    await Promise.all(items.map(async (item) => {
+      try {
+        const bookRes = await request.get(`/api/public/books/${item.bookId}`)
+        if (bookRes.data.code === 200) {
+          const data = bookRes.data.data
+          const book = data.book || data
+          item.bookName = book.title
+          item.bookCover = book.cover
+          item.price = book.price
+        }
+      } catch (e) { /* ignore */ }
+    }))
+    cartList.value = items
   }
 }
 

@@ -23,7 +23,11 @@
           <el-tag :type="statusType(row.status)">{{ statusText(row.status) }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column prop="createTime" label="注册时间" width="180" />
+      <el-table-column label="注册时间" width="180">
+        <template #default="{ row }">
+          {{ row.createTime || '-' }}
+        </template>
+      </el-table-column>
       <el-table-column label="操作" width="200">
         <template #default="{ row }">
           <template v-if="row.status === 0">

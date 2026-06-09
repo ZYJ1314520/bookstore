@@ -17,6 +17,8 @@ request.interceptors.request.use(
       token = localStorage.getItem('shopToken')
     } else if (url.includes('/api/admin')) {
       token = localStorage.getItem('adminToken')
+    } else {
+      token = localStorage.getItem('token') || localStorage.getItem('shopToken') || localStorage.getItem('adminToken') || ''
     }
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
@@ -34,5 +36,12 @@ request.interceptors.response.use(
     return Promise.reject(error)
   }
 )
+
+// 图片URL处理：兼容新旧数据格式
+export function imgUrl(path) {
+  if (!path) return ''
+  if (path.startsWith('http') || path.startsWith('/uploads/')) return path
+  return '/uploads/' + path
+}
 
 export default request

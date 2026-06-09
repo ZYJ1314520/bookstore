@@ -2,7 +2,7 @@
   <div class="book-detail" v-if="book">
     <section class="book-main">
       <div class="book-cover">
-        <img v-if="book.cover" :src="book.cover" :alt="book.title">
+        <img v-if="book.cover" :src="imgUrl(book.cover)" :alt="book.title">
         <div v-else class="cover-fallback">
           <span>{{ book.title }}</span>
           <small>{{ book.author }}</small>
@@ -13,10 +13,8 @@
         <h1 class="book-title">{{ book.title }}</h1>
         <div class="meta-list">
           <p>{{ book.author }}</p>
-          <p v-if="book.shopName">
-            店铺：<router-link :to="`/shop/${book.shopId}`" class="shop-name">{{ book.shopName }}</router-link>
-          </p>
           <p>ISBN：{{ book.isbn }}</p>
+          <p v-if="shopName">书店：<router-link v-if="shopId" :to="`/shop/${shopId}`" class="shop-name">{{ shopName }}</router-link><span v-else class="shop-name">{{ shopName }}</span></p>
         </div>
 
         <div class="book-price-box">
@@ -32,14 +30,18 @@
           <span>销量 {{ book.sales || 0 }}</span>
         </div>
 
-        <div class="quantity-box">
+        <div class="quantity-box" v-if="book.stock > 0">
           <span>数量</span>
           <el-input-number v-model="quantity" :min="1" :max="book.stock" />
         </div>
 
         <div class="action-buttons">
-          <el-button type="primary" size="large" @click="addToCart">加入购物车</el-button>
-          <el-button type="danger" size="large" @click="buyNow">立即购买</el-button>
+          <el-button type="primary" size="large" :disabled="book.stock <= 0" @click="addToCart">加入购物车</el-button>
+          <el-button type="danger" size="large" :disabled="book.stock <= 0" @click="buyNow">立即购买</el-button>
+          <el-button size="large" :type="isFavorite ? 'warning' : 'default'" @click="toggleFavorite">
+            <el-icon style="margin-right: 4px;"><StarFilled v-if="isFavorite" /><Star v-else /></el-icon>
+            {{ isFavorite ? '已收藏' : '收藏' }}
+          </el-button>
         </div>
       </div>
     </section>
@@ -64,7 +66,7 @@
             </dl>
             <div v-if="book.detail" class="detail-text">{{ book.detail }}</div>
             <div v-if="detailImages.length > 0" class="detail-images">
-              <img v-for="img in detailImages" :key="img.id" :src="img.imageUrl" class="detail-img" />
+              <img v-for="img in detailImages" :key="img.id" :src="imgUrl(img.imageUrl)" class="detail-img" />
             </div>
           </div>
         </el-tab-pane>
@@ -92,33 +94,49 @@
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import request from '@/api'
+import { Star, StarFilled } from '@element-plus/icons-vue'
+import request, { imgUrl } from '@/api'
 
 const route = useRoute()
 const router = useRouter()
 
 const book = ref(null)
+const shopName = ref('')
+const shopId = ref(null)
 const reviews = ref([])
 const detailImages = ref([])
 const quantity = ref(1)
+const isFavorite = ref(false)
+const favoriteId = ref(null)
 
 onMounted(async () => {
   const id = route.params.id
-  const [bookRes, reviewRes, imgRes] = await Promise.all([
-    request.get(`/api/user/books/${id}`),
-    request.get(`/api/user/books/${id}/reviews?page=1&size=10`),
-    request.get(`/api/user/books/${id}/images`)
-  ])
-  if (bookRes.data.code === 200) {
-    const data = bookRes.data.data
-    if (data.book) {
-      book.value = { ...data.book, shopName: data.shopName }
-    } else {
-      book.value = data
+  try {
+    const bookRes = await request.get(`/api/public/books/${id}`)
+    if (bookRes.data.code === 200) {
+      const data = bookRes.data.data
+      book.value = data.book || data
+      if (data.shopName) shopName.value = data.shopName
+      if (book.value.shopId) shopId.value = book.value.shopId
     }
+  } catch (e) { console.error('获取图书详情失败', e) }
+  try {
+    const reviewRes = await request.get(`/api/public/books/${id}/reviews?page=1&size=10`)
+    if (reviewRes.data.code === 200) reviews.value = reviewRes.data.data.records
+  } catch (e) { console.error('获取评价失败', e) }
+  try {
+    const imgRes = await request.get(`/api/public/books/${id}/images`)
+    if (imgRes.data.code === 200) detailImages.value = imgRes.data.data
+  } catch (e) { console.error('获取详情图片失败', e) }
+  // 检查收藏状态
+  if (localStorage.getItem('token') || localStorage.getItem('shopToken')) {
+    try {
+      const favRes = await request.get(`/api/user/favorites/check?bookId=${id}`)
+      if (favRes.data.code === 200) {
+        isFavorite.value = favRes.data.data.isFavorite
+      }
+    } catch (e) { /* 未登录忽略 */ }
   }
-  if (reviewRes.data.code === 200) reviews.value = reviewRes.data.data.records
-  if (imgRes.data.code === 200) detailImages.value = imgRes.data.data
 })
 
 const addToCart = async () => {
@@ -128,8 +146,16 @@ const addToCart = async () => {
     router.push('/login')
     return
   }
-  await request.post(`/api/user/cart?bookId=${book.value.id}&quantity=${quantity.value}`)
-  ElMessage.success('已加入购物车')
+  try {
+    const res = await request.post(`/api/user/cart?bookId=${book.value.id}&quantity=${quantity.value}`)
+    if (res.data.code === 200) {
+      ElMessage.success('已加入购物车')
+    } else {
+      ElMessage.error(res.data.message || '添加失败')
+    }
+  } catch (e) {
+    ElMessage.error(e.response?.data?.message || '添加失败')
+  }
 }
 
 const buyNow = () => {
@@ -146,6 +172,35 @@ const buyNow = () => {
       quantity: quantity.value
     }
   })
+}
+
+const toggleFavorite = async () => {
+  const token = localStorage.getItem('token')
+  if (!token) {
+    ElMessage.warning('请先登录')
+    router.push('/login')
+    return
+  }
+  if (isFavorite.value) {
+    // 取消收藏 - 需要先获取收藏ID
+    try {
+      const listRes = await request.get('/api/user/favorites')
+      if (listRes.data.code === 200) {
+        const fav = listRes.data.data.find(f => f.bookId === book.value.id)
+        if (fav) {
+          await request.delete(`/api/user/favorites/${fav.id}`)
+          isFavorite.value = false
+          ElMessage.success('已取消收藏')
+        }
+      }
+    } catch (e) { ElMessage.error('操作失败') }
+  } else {
+    try {
+      await request.post(`/api/user/favorites?bookId=${book.value.id}`)
+      isFavorite.value = true
+      ElMessage.success('收藏成功')
+    } catch (e) { ElMessage.error(e.response?.data?.message || '操作失败') }
+  }
 }
 </script>
 

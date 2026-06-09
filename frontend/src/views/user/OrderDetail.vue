@@ -25,8 +25,11 @@
         <el-table-column label="商品" min-width="300">
           <template #default="{ row }">
             <div class="book-info">
-              <img :src="row.bookCover || '/default-cover.jpg'" class="book-cover">
-              <span>{{ row.bookName }}</span>
+              <img :src="imgUrl(row.bookCover) || '/default-cover.jpg'" class="book-cover">
+              <div>
+                <p>{{ row.bookName }}</p>
+                <p class="shop-name" v-if="row.shopName">书店：{{ row.shopName }}</p>
+              </div>
             </div>
           </template>
         </el-table-column>
@@ -71,7 +74,7 @@
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import request from '@/api'
+import request, { imgUrl } from '@/api'
 
 const route = useRoute()
 const router = useRouter()
@@ -100,24 +103,42 @@ const statusType = (status) => {
 }
 
 const payOrder = async () => {
-  await ElMessageBox.confirm('确认支付？', '提示')
-  await request.put(`/api/user/orders/${order.value.id}/pay`)
-  ElMessage.success('支付成功')
-  order.value.status = 1
+  try {
+    await ElMessageBox.confirm('确认支付？', '提示')
+    const res = await request.put(`/api/user/orders/${order.value.id}/pay`)
+    if (res.data.code === 200) {
+      ElMessage.success('支付成功')
+      order.value.status = 1
+    }
+  } catch (e) {
+    if (e !== 'cancel') ElMessage.error(e.response?.data?.message || '支付失败')
+  }
 }
 
 const receiveOrder = async () => {
-  await ElMessageBox.confirm('确认已收到货物？', '提示')
-  await request.put(`/api/user/orders/${order.value.id}/receive`)
-  ElMessage.success('已确认收货')
-  order.value.status = 3
+  try {
+    await ElMessageBox.confirm('确认已收到货物？', '提示')
+    const res = await request.put(`/api/user/orders/${order.value.id}/receive`)
+    if (res.data.code === 200) {
+      ElMessage.success('已确认收货')
+      order.value.status = 3
+    }
+  } catch (e) {
+    if (e !== 'cancel') ElMessage.error(e.response?.data?.message || '操作失败')
+  }
 }
 
 const cancelOrder = async () => {
-  await ElMessageBox.confirm('确认取消订单？', '提示')
-  await request.post(`/api/user/orders/${order.value.id}/cancel`)
-  ElMessage.success('订单已取消')
-  order.value.status = 4
+  try {
+    await ElMessageBox.confirm('确认取消订单？', '提示')
+    const res = await request.post(`/api/user/orders/${order.value.id}/cancel`)
+    if (res.data.code === 200) {
+      ElMessage.success('订单已取消')
+      order.value.status = 4
+    }
+  } catch (e) {
+    if (e !== 'cancel') ElMessage.error(e.response?.data?.message || '操作失败')
+  }
 }
 
 const goReview = () => {
@@ -164,6 +185,11 @@ const goReview = () => {
   height: 60px;
   object-fit: cover;
   border-radius: 4px;
+}
+.shop-name {
+  color: #999;
+  font-size: 12px;
+  margin-top: 4px;
 }
 .price {
   color: #e4393c;

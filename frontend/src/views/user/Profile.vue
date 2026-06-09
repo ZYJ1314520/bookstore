@@ -67,14 +67,28 @@ const passwordRules = {
 }
 
 onMounted(() => {
-  form.value = { ...userStore.userInfo }
+  let info = userStore.userInfo
+  // 商家从前台访问时，从 shopUserInfo 读取信息
+  if ((!info || !info.username) && localStorage.getItem('shopToken')) {
+    try {
+      info = JSON.parse(localStorage.getItem('shopUserInfo') || '{}')
+    } catch { info = {} }
+  }
+  form.value = { username: '', nickname: '', phone: '', email: '', ...info }
 })
 
 const saveProfile = async () => {
-  await request.put('/api/user/profile', form.value)
-  ElMessage.success('保存成功')
-  userStore.userInfo = { ...userStore.userInfo, ...form.value }
-  localStorage.setItem('userInfo', JSON.stringify(userStore.userInfo))
+  if (localStorage.getItem('shopToken')) {
+    // 商家信息保存到 shopUserInfo
+    await request.put('/api/shop/profile', form.value)
+    ElMessage.success('保存成功')
+    localStorage.setItem('shopUserInfo', JSON.stringify(form.value))
+  } else {
+    await request.put('/api/user/profile', form.value)
+    ElMessage.success('保存成功')
+    userStore.userInfo = { ...userStore.userInfo, ...form.value }
+    localStorage.setItem('userInfo', JSON.stringify(userStore.userInfo))
+  }
 }
 
 const changePassword = async () => {

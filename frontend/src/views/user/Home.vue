@@ -19,7 +19,7 @@
           :class="'book-' + index"
           @click="book.id && $router.push('/book/' + book.id)"
         >
-          <img v-if="book.cover" :src="book.cover" :alt="book.title">
+          <img v-if="book.cover" :src="imgUrl(book.cover)" :alt="book.title">
           <div v-else class="cover-fallback">
             <span>{{ book.title }}</span>
             <small>{{ book.author }}</small>
@@ -36,7 +36,7 @@
       <div class="book-grid">
         <div v-for="book in hotBooks" :key="book.id" class="book-card" @click="$router.push('/book/' + book.id)">
           <div class="book-cover">
-            <img v-if="book.cover" :src="book.cover" :alt="book.title">
+            <img v-if="book.cover" :src="imgUrl(book.cover)" :alt="book.title">
             <div v-else class="cover-fallback compact">
               <span>{{ book.title }}</span>
             </div>
@@ -62,7 +62,7 @@
       <div class="book-grid">
         <div v-for="book in newBooks" :key="book.id" class="book-card" @click="$router.push('/book/' + book.id)">
           <div class="book-cover">
-            <img v-if="book.cover" :src="book.cover" :alt="book.title">
+            <img v-if="book.cover" :src="imgUrl(book.cover)" :alt="book.title">
             <div v-else class="cover-fallback compact">
               <span>{{ book.title }}</span>
             </div>
@@ -84,7 +84,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import request from '@/api'
+import request, { imgUrl } from '@/api'
 
 const router = useRouter()
 const hotBooks = ref([])

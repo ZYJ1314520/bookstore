@@ -27,7 +27,11 @@
           <el-tag :type="statusType(row.status)">{{ statusText(row.status) }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column prop="createTime" label="下单时间" width="180" />
+      <el-table-column label="下单时间" width="180">
+        <template #default="{ row }">
+          {{ row.createTime || row.payTime || '-' }}
+        </template>
+      </el-table-column>
       <el-table-column prop="receiverAddress" label="收货地址" show-overflow-tooltip />
     </el-table>
 

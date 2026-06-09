@@ -2,15 +2,18 @@
   <div class="shop-detail" v-if="shop">
     <!-- 店铺信息头部 -->
     <div class="shop-header">
-      <div class="shop-info">
-        <img v-if="shop.logo" :src="shop.logo" class="shop-logo" />
-        <div class="shop-text">
-          <h1 class="shop-name">{{ shop.shopName }}</h1>
-          <p class="shop-desc" v-if="shop.description">{{ shop.description }}</p>
-          <p class="shop-contact" v-if="shop.contactPhone">
-            <el-icon><Phone /></el-icon> {{ shop.contactPhone }}
-          </p>
+      <div class="shop-logo-wrap">
+        <img v-if="shop.logo" :src="imgUrl(shop.logo)" class="shop-logo" />
+        <div v-else class="logo-fallback">
+          <span>{{ shop.shopName }}</span>
         </div>
+      </div>
+      <div class="shop-text">
+        <h1 class="shop-name">{{ shop.shopName }}</h1>
+        <p class="shop-desc" v-if="shop.description">{{ shop.description }}</p>
+        <p class="shop-contact" v-if="shop.contactPhone">
+          <el-icon><Phone /></el-icon> {{ shop.contactPhone }}
+        </p>
       </div>
     </div>
 
@@ -30,7 +33,11 @@
       <div class="books-grid" v-if="books.length > 0">
         <div v-for="book in books" :key="book.id" class="book-card" @click="goToBook(book.id)">
           <div class="book-cover">
-            <img :src="book.cover || '/default-cover.jpg'" :alt="book.title">
+            <img v-if="book.cover" :src="imgUrl(book.cover)" :alt="book.title">
+            <div v-else class="cover-fallback">
+              <span>{{ book.title }}</span>
+              <small>{{ book.author }}</small>
+            </div>
           </div>
           <div class="book-info">
             <h3 class="book-title">{{ book.title }}</h3>
@@ -63,7 +70,7 @@
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { Phone } from '@element-plus/icons-vue'
-import request from '@/api'
+import request, { imgUrl } from '@/api'
 
 const route = useRoute()
 const router = useRouter()
@@ -106,128 +113,205 @@ const goToBook = (id) => {
 
 <style scoped>
 .shop-detail {
-  max-width: 1200px;
-  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
+
 .shop-header {
-  background: white;
-  border-radius: 8px;
-  padding: 30px;
-  margin-bottom: 20px;
-}
-.shop-info {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 24px;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius);
+  padding: 30px;
 }
+
+.shop-logo-wrap {
+  width: 100px;
+  height: 100px;
+  border-radius: var(--app-radius);
+  overflow: hidden;
+  flex-shrink: 0;
+  border: 1px solid var(--app-border);
+}
+
 .shop-logo {
-  width: 80px;
-  height: 80px;
-  border-radius: 8px;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
 }
+
+.logo-fallback {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px;
+  color: #f6f2e9;
+  background:
+    linear-gradient(160deg, rgba(255,255,255,0.18), transparent 42%),
+    #151515;
+  font-size: 20px;
+  font-weight: 650;
+  line-height: 1.2;
+  text-align: center;
+}
+
 .shop-text {
   flex: 1;
 }
+
 .shop-name {
-  font-size: 24px;
-  color: #333;
-  margin-bottom: 8px;
+  font-size: 28px;
+  font-weight: 640;
+  color: var(--app-text);
+  margin-bottom: 10px;
 }
+
 .shop-desc {
-  color: #666;
+  color: var(--app-text-muted);
   margin-bottom: 8px;
   font-size: 14px;
+  line-height: 1.6;
 }
+
 .shop-contact {
-  color: #999;
+  color: var(--app-text-muted);
   font-size: 13px;
   display: flex;
   align-items: center;
   gap: 5px;
 }
+
 .shop-books {
-  background: white;
-  border-radius: 8px;
-  padding: 20px;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius);
+  padding: 24px;
 }
+
 .section-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
-  padding-bottom: 15px;
-  border-bottom: 1px solid #eee;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--app-border);
 }
+
 .section-header h2 {
-  font-size: 18px;
-  color: #333;
+  font-size: 20px;
+  font-weight: 640;
+  color: var(--app-text);
 }
+
 .books-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 20px;
 }
+
 .book-card {
-  border: 1px solid #eee;
-  border-radius: 8px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius);
   overflow: hidden;
   cursor: pointer;
   transition: all 0.3s;
+  background: var(--app-surface);
 }
+
 .book-card:hover {
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  box-shadow: var(--app-shadow);
   transform: translateY(-2px);
 }
+
 .book-cover {
   width: 100%;
   height: 200px;
   overflow: hidden;
+  background: var(--app-surface-muted);
 }
+
 .book-cover img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
-.book-info {
-  padding: 12px;
+
+.cover-fallback {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 20px;
+  color: #f6f2e9;
+  background:
+    linear-gradient(160deg, rgba(255,255,255,0.18), transparent 42%),
+    #151515;
 }
+
+.cover-fallback span {
+  font-size: 16px;
+  line-height: 1.3;
+  font-weight: 650;
+}
+
+.cover-fallback small {
+  color: rgba(255,255,255,0.72);
+  font-size: 12px;
+}
+
+.book-info {
+  padding: 14px;
+}
+
 .book-title {
   font-size: 14px;
-  color: #333;
-  margin-bottom: 5px;
+  color: var(--app-text);
+  margin-bottom: 6px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  font-weight: 600;
 }
+
 .book-author {
   font-size: 12px;
-  color: #999;
-  margin-bottom: 8px;
+  color: var(--app-text-muted);
+  margin-bottom: 10px;
 }
+
 .book-price {
   display: flex;
   align-items: baseline;
   gap: 8px;
 }
+
 .price {
   font-size: 18px;
-  color: #e4393c;
-  font-weight: bold;
+  color: var(--app-text);
+  font-weight: 700;
 }
+
 .original-price {
   font-size: 12px;
-  color: #999;
+  color: var(--app-text-muted);
   text-decoration: line-through;
 }
+
 .book-sales {
   font-size: 12px;
-  color: #999;
-  margin-top: 5px;
+  color: var(--app-text-muted);
+  margin-top: 6px;
 }
+
 .pagination {
   display: flex;
   justify-content: center;
-  margin-top: 20px;
+  margin-top: 24px;
 }
 </style>

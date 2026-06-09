@@ -1,7 +1,22 @@
 <template>
   <div class="dashboard">
     <p class="eyebrow">Shop overview</p>
-    <h2>商家工作台</h2>
+    <div class="title-row">
+      <h2>商家工作台</h2>
+      <div class="export-area">
+        <el-date-picker
+          v-model="exportRange"
+          type="daterange"
+          range-separator="至"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+          value-format="YYYY-MM-DD"
+          :shortcuts="dateShortcuts"
+          size="default"
+        />
+        <el-button type="primary" @click="handleExport" :loading="exporting">导出报表</el-button>
+      </div>
+    </div>
 
     <!-- 统计卡片 -->
     <div class="stat-cards">
@@ -33,11 +48,20 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { ElMessage } from 'element-plus'
 import request from '@/api'
 import * as echarts from 'echarts'
 
 const stats = ref({})
 const chartRef = ref(null)
+const exportRange = ref(null)
+const exporting = ref(false)
+
+const dateShortcuts = [
+  { text: '最近7天', value: () => { const e = new Date(); const s = new Date(); s.setDate(s.getDate() - 6); return [s, e] } },
+  { text: '最近30天', value: () => { const e = new Date(); const s = new Date(); s.setDate(s.getDate() - 29); return [s, e] } },
+  { text: '本月', value: () => { const e = new Date(); const s = new Date(e.getFullYear(), e.getMonth(), 1); return [s, e] } }
+]
 
 onMounted(async () => {
   // 获取统计数据
@@ -52,6 +76,33 @@ onMounted(async () => {
     initChart(trendRes.data.data)
   }
 })
+
+const handleExport = async () => {
+  if (!exportRange.value || exportRange.value.length !== 2) {
+    ElMessage.warning('请先选择日期范围')
+    return
+  }
+  exporting.value = true
+  try {
+    const [startDate, endDate] = exportRange.value
+    const res = await request.get('/api/shop/dashboard/export', {
+      params: { startDate, endDate },
+      responseType: 'blob'
+    })
+    const blob = new Blob([res.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+    const url = window.URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `经营报表_${startDate}_${endDate}.xlsx`
+    a.click()
+    window.URL.revokeObjectURL(url)
+    ElMessage.success('导出成功')
+  } catch (e) {
+    ElMessage.error('导出失败')
+  } finally {
+    exporting.value = false
+  }
+}
 
 const initChart = (data) => {
   const chart = echarts.init(chartRef.value)
@@ -99,6 +150,22 @@ h2 {
   color: var(--app-text);
   font-size: 32px;
   font-weight: 640;
+}
+.title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.title-row h2 {
+  margin-bottom: 0;
+}
+.export-area {
+  display: flex;
+  gap: 12px;
+  align-items: center;
 }
 .stat-cards {
   display: grid;

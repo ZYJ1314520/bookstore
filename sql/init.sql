@@ -239,6 +239,20 @@ CREATE TABLE `review` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='评价表';
 
 -- ================================================
+-- 10. 收藏表
+-- ================================================
+DROP TABLE IF EXISTS `favorite`;
+CREATE TABLE `favorite` (
+    `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+    `user_id` BIGINT NOT NULL COMMENT '用户ID',
+    `book_id` BIGINT NOT NULL COMMENT '图书ID',
+    `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '收藏时间',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_user_book` (`user_id`, `book_id`),
+    KEY `idx_user_id` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='收藏表';
+
+-- ================================================
 -- 测试数据由后端启动时自动创建
 -- 账号密码: admin/admin123, user1/123456, shop1/123456
 -- ================================================

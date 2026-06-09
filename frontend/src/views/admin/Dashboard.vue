@@ -98,14 +98,14 @@ const pieChartRef = ref(null)
 
 onMounted(async () => {
   // 获取统计数据
-  const statsRes = await request.get('/api/admin/dashboard')
+  const statsRes = await request.get('/api/admin/dashboard/stats')
   if (statsRes.data.code === 200) {
     stats.value = statsRes.data.data
   }
 
   // 并发获取图表数据
   const [trendRes, categoryRes, hotRes, rankRes] = await Promise.all([
-    request.get('/api/admin/dashboard/sales?days=7'),
+    request.get('/api/admin/dashboard/sales-trend?days=7'),
     request.get('/api/admin/dashboard/category-sales'),
     request.get('/api/admin/dashboard/hot-books?limit=10'),
     request.get('/api/admin/dashboard/shop-rank?limit=10')

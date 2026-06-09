@@ -1,0 +1,143 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: bookstore-gateway
+  codec:
+    max-in-memory-size: 10MB
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+    gateway:
+      httpclient:
+        connect-timeout: 3000
+        response-timeout: 5s
+        pool:
+          type: elastic
+          max-connections: 500
+          max-idle-time: 30s
+          max-life-time: 60s
+      routes:
+        # ========== 公开接口 → book-service ==========
+        - id: book-service-public
+          uri: lb://bookstore-book
+          predicates:
+            - Path=/api/public/**
+
+        # ========== 用户端 - 认证 → user-service ==========
+        - id: user-service-auth
+          uri: lb://bookstore-user
+          predicates:
+            - Path=/api/user/auth/**
+
+        # ========== 用户端 - 订单 → order-service ==========
+        - id: user-service-order
+          uri: lb://bookstore-order
+          predicates:
+            - Path=/api/user/orders/**
+
+        # ========== 用户端 - 评价 → order-service ==========
+        - id: user-service-review
+          uri: lb://bookstore-order
+          predicates:
+            - Path=/api/user/reviews/**
+
+        # ========== AI导购 → ai-service ==========
+        - id: ai-service-chat
+          uri: lb://bookstore-ai
+          predicates:
+            - Path=/api/user/ai/**
+
+        # ========== 用户端 - 个人中心 → user-service ==========
+        - id: user-service-profile
+          uri: lb://bookstore-user
+          predicates:
+            - Path=/api/user/**
+
+        # ========== 商家端 - 认证 → user-service ==========
+        - id: shop-service-auth
+          uri: lb://bookstore-user
+          predicates:
+            - Path=/api/shop/auth/**
+
+        # ========== 商家端 - 图书 → book-service ==========
+        - id: shop-service-book
+          uri: lb://bookstore-book
+          predicates:
+            - Path=/api/shop/books/**
+
+        # ========== 商家端 - 订单 → order-service ==========
+        - id: shop-service-order
+          uri: lb://bookstore-order
+          predicates:
+            - Path=/api/shop/orders/**
+
+        # ========== 商家端 - 评价 → order-service ==========
+        - id: shop-service-review
+          uri: lb://bookstore-order
+          predicates:
+            - Path=/api/shop/reviews/**
+
+        # ========== 商家端 - 资料/密码/看板 → user-service ==========
+        - id: shop-service-profile
+          uri: lb://bookstore-user
+          predicates:
+            - Path=/api/shop/profile/**,/api/shop/password/**,/api/shop/dashboard/**
+
+        # ========== 管理端 - 认证 → user-service ==========
+        - id: admin-service-auth
+          uri: lb://bookstore-user
+          predicates:
+            - Path=/api/admin/auth/**
+
+        # ========== 管理端 - 图书 → book-service ==========
+        - id: admin-service-book
+          uri: lb://bookstore-book
+          predicates:
+            - Path=/api/admin/books/**
+
+        # ========== 管理端 - 分类 → book-service ==========
+        - id: admin-service-category
+          uri: lb://bookstore-book
+          predicates:
+            - Path=/api/admin/categories/**
+
+        # ========== 管理端 - 订单 → order-service ==========
+        - id: admin-service-order
+          uri: lb://bookstore-order
+          predicates:
+            - Path=/api/admin/orders/**
+
+        # ========== 管理端 - 看板 → admin-service ==========
+        - id: admin-service-dashboard
+          uri: lb://bookstore-admin
+          predicates:
+            - Path=/api/admin/dashboard/**
+
+        # ========== 管理端 - 商家/用户管理 → user-service ==========
+        - id: admin-service-shop
+          uri: lb://bookstore-user
+          predicates:
+            - Path=/api/admin/shops/**
+        - id: admin-service-user
+          uri: lb://bookstore-user
+          predicates:
+            - Path=/api/admin/users/**
+
+        # ========== 文件上传 → book-service ==========
+        - id: book-service-upload
+          uri: lb://bookstore-book
+          predicates:
+            - Path=/api/upload
+
+
+jwt:
+  secret: bookstore-secret-key-must-be-at-least-256-bits-long-for-hs256
+
+logging:
+  level:
+    root: warn
+    com.bookstore: info
+    org.springframework.cloud.gateway: warn

@@ -1,0 +1,1 @@
+java -Dserver.port=8880 -jar sentinel-dashboard-2.0.0-alpha-preview.jar

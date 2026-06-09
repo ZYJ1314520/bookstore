@@ -25,7 +25,11 @@
           <el-tag :type="statusType(row.status)">{{ statusText(row.status) }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column prop="createTime" label="下单时间" width="180" />
+      <el-table-column label="下单时间" width="180">
+        <template #default="{ row }">
+          {{ row.createTime || row.payTime || '-' }}
+        </template>
+      </el-table-column>
       <el-table-column label="操作" width="120">
         <template #default="{ row }">
           <el-button v-if="row.status === 1" type="primary" size="small" @click="shipOrder(row.id)">

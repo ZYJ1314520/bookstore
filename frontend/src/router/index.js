@@ -12,6 +12,8 @@ import OrderDetail from '@/views/user/OrderDetail.vue'
 import Address from '@/views/user/Address.vue'
 import MyReviews from '@/views/user/MyReviews.vue'
 import Profile from '@/views/user/Profile.vue'
+import ShopDetail from '@/views/user/ShopDetail.vue'
+import MyFavorites from '@/views/user/MyFavorites.vue'
 import UserLogin from '@/views/user/Login.vue'
 import UserRegister from '@/views/user/Register.vue'
 
@@ -58,12 +60,14 @@ const routes = [
       { path: '', name: 'Home', component: Home, meta: { public: true } },
       { path: 'books', name: 'BookList', component: BookList, meta: { public: true } },
       { path: 'book/:id', name: 'BookDetail', component: BookDetail, meta: { public: true } },
+      { path: 'shop/:id', name: 'ShopDetail', component: ShopDetail, meta: { public: true } },
       { path: 'cart', name: 'Cart', component: Cart, meta: { auth: 'user' } },
       { path: 'order/confirm', name: 'OrderConfirm', component: OrderConfirm, meta: { auth: 'user' } },
       { path: 'my/orders', name: 'MyOrders', component: MyOrders, meta: { auth: 'user' } },
       { path: 'my/order/:id', name: 'OrderDetail', component: OrderDetail, meta: { auth: 'user' } },
       { path: 'my/address', name: 'Address', component: Address, meta: { auth: 'user' } },
       { path: 'my/reviews', name: 'MyReviews', component: MyReviews, meta: { auth: 'user' } },
+      { path: 'my/favorites', name: 'MyFavorites', component: MyFavorites, meta: { auth: 'user' } },
       { path: 'my/profile', name: 'Profile', component: Profile, meta: { auth: 'user' } }
     ]
   },

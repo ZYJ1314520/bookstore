@@ -31,3 +31,4 @@ Thumbs.db
 # Logs
 *.log
 backend/uploads/
+nacos-server-*/

@@ -1,0 +1,18 @@
+server:
+  port: 8085
+
+spring:
+  application:
+    name: bookstore-ai
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+  ai:
+    openai:
+      api-key: tp-cnvo9iru52zdt6crwh199af1nc37nc65dzc7i7311pikvma6
+      base-url: https://token-plan-cn.xiaomimimo.com
+      chat:
+        options:
+          model: mimo-v2.5
+          temperature: 0.7

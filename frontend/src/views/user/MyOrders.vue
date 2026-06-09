@@ -71,24 +71,43 @@ const statusText = (status) => {
 }
 
 const payOrder = async (orderId) => {
-  await ElMessageBox.confirm('确认支付？', '提示')
-  await request.put(`/api/user/orders/${orderId}/pay`)
-  ElMessage.success('支付成功')
-  loadOrders()
+  try {
+    await ElMessageBox.confirm('确认支付？', '提示')
+    const res = await request.put(`/api/user/orders/${orderId}/pay`)
+    if (res.data.code === 200) {
+      ElMessage.success('支付成功')
+      activeTab.value = 'all'
+      loadOrders()
+    }
+  } catch (e) {
+    if (e !== 'cancel') ElMessage.error(e.response?.data?.message || '支付失败')
+  }
 }
 
 const receiveOrder = async (orderId) => {
-  await ElMessageBox.confirm('确认已收到货物？', '提示')
-  await request.put(`/api/user/orders/${orderId}/receive`)
-  ElMessage.success('已确认收货')
-  loadOrders()
+  try {
+    await ElMessageBox.confirm('确认已收到货物？', '提示')
+    const res = await request.put(`/api/user/orders/${orderId}/receive`)
+    if (res.data.code === 200) {
+      ElMessage.success('已确认收货')
+      loadOrders()
+    }
+  } catch (e) {
+    if (e !== 'cancel') ElMessage.error(e.response?.data?.message || '操作失败')
+  }
 }
 
 const cancelOrder = async (orderId) => {
-  await ElMessageBox.confirm('确认取消订单？', '提示')
-  await request.post(`/api/user/orders/${orderId}/cancel`)
-  ElMessage.success('订单已取消')
-  loadOrders()
+  try {
+    await ElMessageBox.confirm('确认取消订单？', '提示')
+    const res = await request.post(`/api/user/orders/${orderId}/cancel`)
+    if (res.data.code === 200) {
+      ElMessage.success('订单已取消')
+      loadOrders()
+    }
+  } catch (e) {
+    if (e !== 'cancel') ElMessage.error(e.response?.data?.message || '操作失败')
+  }
 }
 
 const goReview = (order) => {

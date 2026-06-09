@@ -42,7 +42,6 @@
         </div>
       </div>
       <div class="header-right">
-        <router-link v-if="isShopLoggedIn" to="/shop" class="nav-link back-shop">返回商家后台</router-link>
         <router-link to="/cart" class="nav-link">
           <el-badge :value="cartCount" :hidden="cartCount === 0">
             <el-icon><ShoppingCart /></el-icon>
@@ -59,6 +58,7 @@
             <el-dropdown-menu>
               <el-dropdown-item @click="$router.push('/my/orders')">我的订单</el-dropdown-item>
               <el-dropdown-item @click="$router.push('/my/address')">收货地址</el-dropdown-item>
+              <el-dropdown-item @click="$router.push('/my/favorites')">我的收藏</el-dropdown-item>
               <el-dropdown-item @click="$router.push('/my/reviews')">我的评价</el-dropdown-item>
               <el-dropdown-item @click="$router.push('/my/profile')">个人中心</el-dropdown-item>
               <el-dropdown-item divided @click="handleLogout">退出登录</el-dropdown-item>
@@ -88,6 +88,8 @@
     <footer class="footer">
       <p>© 2026 网上书店 · 为每一次阅读挑选更好的入口</p>
     </footer>
+
+    <AiChat />
   </div>
 </template>
 
@@ -96,11 +98,10 @@ import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/store/user'
 import request from '@/api'
+import AiChat from '@/components/AiChat.vue'
 
 const router = useRouter()
 const userStore = useUserStore()
-
-const isShopLoggedIn = computed(() => !!localStorage.getItem('shopToken'))
 
 // 当没有用户token但有shopToken时，显示商家信息
 const displayNickname = computed(() => {
@@ -142,6 +143,12 @@ const handleOutsideClick = (e) => {
 
 const handleSearch = () => {
   showSearchPanel.value = false
+  if (searchKeyword.value.trim()) {
+    const history = searchHistory.value.filter(h => h !== searchKeyword.value)
+    history.unshift(searchKeyword.value)
+    searchHistory.value = history.slice(0, 10)
+    localStorage.setItem('searchHistory', JSON.stringify(searchHistory.value))
+  }
   router.push({ path: '/books', query: { keyword: searchKeyword.value } })
 }
 
@@ -266,13 +273,6 @@ const handleLogout = () => {
   transition: color 0.2s ease;
 }
 .nav-link:hover {
-  color: var(--app-text);
-}
-.back-shop {
-  color: var(--app-text);
-  font-weight: 600;
-}
-.back-shop:hover {
   color: var(--app-text);
 }
 .category-nav {

@@ -22,7 +22,11 @@
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column prop="createTime" label="注册时间" width="180" />
+      <el-table-column label="注册时间" width="180">
+        <template #default="{ row }">
+          {{ row.createTime || '-' }}
+        </template>
+      </el-table-column>
       <el-table-column label="操作" width="120">
         <template #default="{ row }">
           <el-button

@@ -11,9 +11,10 @@
     <div v-if="activeTab === 'pending'" class="review-list">
       <div v-for="(item, index) in pendingList" :key="index" class="review-card">
         <div class="review-item-info">
-          <img v-if="item.images" :src="item.images" class="book-cover" />
+          <img v-if="item.bookCover" :src="imgUrl(item.bookCover)" class="book-cover" />
           <div class="item-detail">
-            <p class="book-name">{{ item.content }}</p>
+            <p class="book-name">{{ item.bookName }}</p>
+            <p class="shop-name" v-if="item.shopName">{{ item.shopName }}</p>
             <p class="order-no">订单号：{{ item.orderId }}</p>
           </div>
         </div>
@@ -24,7 +25,14 @@
 
     <!-- 评价历史 -->
     <div v-if="activeTab === 'history'" class="review-list">
-      <div v-for="review in historyList" :key="review.id" class="review-card">
+      <div v-for="review in historyList" :key="review.id" class="review-card history-card">
+        <div class="review-book-info" v-if="review.bookName">
+          <img v-if="review.bookCover" :src="imgUrl(review.bookCover)" class="book-cover" />
+          <div>
+            <p class="book-name">{{ review.bookName }}</p>
+            <p class="shop-name" v-if="review.shopName">{{ review.shopName }}</p>
+          </div>
+        </div>
         <div class="review-header">
           <el-rate v-model="review.rating" disabled />
           <span class="review-time">{{ review.createTime }}</span>
@@ -59,7 +67,7 @@
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import request from '@/api'
+import request, { imgUrl } from '@/api'
 
 const route = useRoute()
 
@@ -154,9 +162,24 @@ h2 {
   color: #333;
   margin-bottom: 5px;
 }
+.shop-name {
+  color: #999;
+  font-size: 12px;
+  margin-bottom: 3px;
+}
 .order-no {
   color: #999;
   font-size: 13px;
+}
+.history-card {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+.review-book-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 .review-header {
   display: flex;

@@ -30,7 +30,7 @@
     <div class="book-grid" v-if="books.length > 0">
       <div v-for="book in books" :key="book.id" class="book-card" @click="$router.push('/book/' + book.id)">
         <div class="book-cover">
-          <img v-if="book.cover" :src="book.cover" :alt="book.title">
+          <img v-if="book.cover" :src="imgUrl(book.cover)" :alt="book.title">
           <div v-else class="cover-fallback">
             <span>{{ book.title }}</span>
           </div>
@@ -67,7 +67,7 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import request from '@/api'
+import request, { imgUrl } from '@/api'
 
 const route = useRoute()
 
@@ -128,7 +128,7 @@ const loadBooks = async () => {
   if (priceMin.value) params.priceMin = priceMin.value
   if (priceMax.value) params.priceMax = priceMax.value
 
-  const res = await request.get('/api/user/books', { params })
+  const res = await request.get('/api/public/books', { params })
   if (res.data.code === 200) {
     books.value = res.data.data.records
     total.value = res.data.data.total

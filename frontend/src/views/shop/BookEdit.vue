@@ -38,7 +38,7 @@
           :show-file-list="false"
           :before-upload="beforeUpload"
         >
-          <img v-if="form.cover" :src="form.cover" class="cover-img" />
+          <img v-if="form.cover" :src="imgUrl(form.cover)" class="cover-img" />
           <el-icon v-else class="cover-placeholder"><Plus /></el-icon>
         </el-upload>
       </el-form-item>
@@ -60,7 +60,7 @@ import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
-import request from '@/api'
+import request, { imgUrl } from '@/api'
 
 const route = useRoute()
 const router = useRouter()
@@ -107,14 +107,17 @@ const customCoverUpload = async (options) => {
   formData.append('file', options.file)
   try {
     const res = await request.post('/api/upload', formData)
-    if (res.data.code === 200) {
-      form.value.cover = res.data.data
+    console.log('upload response:', JSON.stringify(res.data))
+    const data = res.data
+    if (data.code === 200) {
+      form.value.cover = data.data
       ElMessage.success('封面上传成功')
     } else {
-      ElMessage.error(res.data.message || '上传失败')
+      ElMessage.error(data.message || '上传失败')
     }
   } catch (e) {
-    ElMessage.error('封面上传失败: ' + (e.message || '网络错误'))
+    console.error('upload error:', e.response?.data || e.message)
+    ElMessage.error('封面上传失败: ' + (e.response?.data?.message || e.message || '网络错误'))
   }
 }
 

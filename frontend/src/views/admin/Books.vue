@@ -12,7 +12,7 @@
     <el-table :data="books" style="width: 100%">
       <el-table-column label="封面" width="80">
         <template #default="{ row }">
-          <img :src="row.cover || '/default-cover.jpg'" style="width: 50px; height: 60px; object-fit: cover;">
+          <img :src="imgUrl(row.cover) || '/default-cover.jpg'" style="width: 50px; height: 60px; object-fit: cover;">
         </template>
       </el-table-column>
       <el-table-column prop="title" label="书名" />
@@ -67,7 +67,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
-import request from '@/api'
+import request, { imgUrl } from '@/api'
 
 const books = ref([])
 const total = ref(0)
